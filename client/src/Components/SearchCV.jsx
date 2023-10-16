@@ -36,7 +36,7 @@ const SearchCV = () => {
     if (data.CandidateName == "" && data.LatestCompany == "" && data.status == "" && data.job == null) {
       alert("Select Atleast One feild to Search")
     } else {
-      axios.post('/searchcv',{data:data})
+      axios.post('/searchcv', { data: data })
         .then((response) => {
           if (response.data.status == 200) {
             //  console.log(response.data.data)
@@ -101,6 +101,7 @@ const SearchCV = () => {
             <label htmlFor="validationDefault03" id='validationDefault03' className="form-label">Select Status</label>
             <select name="" id="" className="form-control" onChange={e => { setdata(ps => { return { ...ps, status: e.target.value } }) }}>
               <option value="">Status</option>
+              <option value="recievecv">CV Recieved</option>
               <option value="shortlistcv">Short Listed</option>
               <option value="submitcv">Submitted to Clients</option>
               <option value="acceptencebyclient">Accepted By Client</option>
@@ -124,6 +125,7 @@ const SearchCV = () => {
                   <tr>
                     <th>Candidate Name</th>
                     <th>Latest Company</th>
+                    <th>Last Job Title</th>
                     <th>CV's</th>
                   </tr>
                 </thead>
@@ -132,6 +134,7 @@ const SearchCV = () => {
                     <tr key={index}>
                       <td>{item.CandidateName}</td>
                       <td>{item.LatestCompany}</td>
+                      <td>{item.LatestJobTitle}</td>
                       <td><button type="button" className="btn btn-success" onClick={() => { downloadcv(item) }} data-bs-toggle="modal" data-bs-target="#exampleModal">View</button></td>
                     </tr>
                   ))}
@@ -170,7 +173,7 @@ const SearchCV = () => {
             </div>
           </div>
         </div>
-      </div> 
+      </div>
 
 
 
