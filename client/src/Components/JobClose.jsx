@@ -67,7 +67,7 @@ const JobClose = () => {
         setvalues(true)
 
 
-        axios.post('/closejob', { job: data.job[0], user: user })
+        axios.post('/closejob', { job: data.job[0], remarks: data.remarks })
           .then((reponse) => {
             if (reponse.data.status == 200) {
               alert('Success')
@@ -128,7 +128,7 @@ const JobClose = () => {
         </div>
         <div className="col-md-4">
         <label htmlFor="validationDefault01" className="form-label">Job Remarks</label>
-          <input type="text" className="form-control" id="validationDefault01" required onChange={e => { setdata(ps => { return { ...ps, UserName: e.target.value } }) }} />
+          <input type="text" className="form-control" id="validationDefault01" required onChange={e => { setdata(ps => { return { ...ps, remarks: e.target.value } }) }} />
         </div>
         <div className="col-12">
           <button className="btn btn-success" id="savebtn" type="submit">Close Job</button>
@@ -141,7 +141,7 @@ const JobClose = () => {
       <div className="mt-5">
         <p className="h3 w-100 text-center">All Closed Jobs</p>
         <div className="cor-3">
-          <input type="text" className="form-control w-25 mx-auto text-center" placeholder="Search Candidate Name" onChange={e => handlesearch(e)} />
+          <input type="text" className="form-control w-25 mx-auto text-center" placeholder="Search Job Name" onChange={e => handlesearch(e)} />
         </div>
         {/* <p className="w-100 text-center">Click to update Record</p> */}
         <div className="table-responsive my-5 rounded-3" style={{ height: '300px', overflow: 'auto' }}>
@@ -150,6 +150,7 @@ const JobClose = () => {
               <tr>
                 <th>Sr</th>
                 <th>Job Title</th>
+                <th>Remarks</th>
                 <th>Person</th>
                 <th>Company</th>
               </tr>
@@ -159,6 +160,7 @@ const JobClose = () => {
                 <tr key={index}>
                   <td>{index+1}</td>
                   <td>{item.Title}</td>
+                  <td>{item.Remarks}</td>
                   <td>{item.Person}</td>
                   <td>{item.Company}</td>
                 </tr>

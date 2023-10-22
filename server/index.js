@@ -1163,9 +1163,25 @@ app.post('/getjobsforclosing', (req, res) => {
 
 app.post('/closejob', (req, res) => {
     const id = req.body.job.JobID
-    const JOB_QUERY = `UPDATE jobs SET status = '' WHERE JobID = ?`
+    const remarks = req.body.remarks
+    console.log(id,remarks)
+    const JOB_ADD_COLUMN_REMARKS =`ALTER TABLE jobs ADD remarks VARCHAR(255)`
+    const JOB_QUERY = `UPDATE jobs SET status = '', remarks = ? WHERE JobID = ?`
     const JOB_ASSIGNMENT_QUERY = `UPDATE jobassignment SET status = '' WHERE JobID = ?`
-    connection.query(JOB_QUERY, [id], (err, response) => {
+    const check_column = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_NAME = 'jobs' AND COLUMN_NAME = 'remarks'";
+    connection.query(check_column, (err, result) => {
+        if (err) console.log(err);
+        if (result.length > 0) {
+        } else {
+        console.log("Column does not exist creating");
+        connection.query(JOB_ADD_COLUMN_REMARKS, (err, response) => {
+            if (err) console.log(err)
+            else console.log(response)
+        })
+        }
+    });
+    
+    connection.query(JOB_QUERY, [remarks,id], (err, response) => {
         if (err) console.log(err)
         else {
             connection.query(JOB_ASSIGNMENT_QUERY, [id], (err, response) => {
@@ -1176,7 +1192,6 @@ app.post('/closejob', (req, res) => {
             })
         }
     })
-
 })
 
 app.post('/getallclosedjobs', (req, res) => {
