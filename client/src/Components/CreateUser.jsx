@@ -8,8 +8,6 @@ import { Country, State, City } from 'country-state-city';
 
 
 
-
-
 const CreateUser = () => {
 
   const [tdata, settdata] = useState([]);
@@ -217,6 +215,7 @@ const CreateUser = () => {
               <option value="">Choose UserType</option>
               <option value="general">General</option>
               <option value="admin">Admin</option>
+              <option value="Master">Master</option>
             </select>
           </div>
         </div>

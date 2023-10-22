@@ -126,6 +126,10 @@ const JobClose = () => {
           <label htmlFor="validationDefault01" className="form-label">Job</label>
           <Multiselect loading={fl} ref={jobref} options={alljobs} displayValue="Title" id="validationDefault01" selectionLimit={1} onSelect={jobselect} onRemove={jobremove} />
         </div>
+        <div className="col-md-4">
+        <label htmlFor="validationDefault01" className="form-label">Job Remarks</label>
+          <input type="text" className="form-control" id="validationDefault01" required onChange={e => { setdata(ps => { return { ...ps, UserName: e.target.value } }) }} />
+        </div>
         <div className="col-12">
           <button className="btn btn-success" id="savebtn" type="submit">Close Job</button>
           <span id="spinner" style={{display:'none'}}><span className="spinner-border spinner-border-sm text-success mx-3" role="status" aria-hidden="true"></span><span className="text-success">Closing...</span></span>

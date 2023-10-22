@@ -31,6 +31,7 @@ import LoggedIn from './Components/CurrentlyWorking'
 import SearchCV from './Components/SearchCV';
 import UserLog from './Components/UserLog';
 import JobLog from './Components/JobLog';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import axios from 'axios'
 import EditPassword from './Components/EditPassword';
