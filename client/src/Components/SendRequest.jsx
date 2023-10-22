@@ -25,7 +25,14 @@ const SendRequest = () => {
     CandidateName: '',
     WebLink: ''
   });
-
+  const [updateData, setUpdateData] = useState({
+    SendRequestID:null,
+    newdata: {
+      job : null,
+      CandidateName: '',
+      WebLink: ''
+    }
+  });
   const user = JSON.parse(sessionStorage.getItem('user'))
 
   const fetchtdata = () => {
@@ -75,7 +82,7 @@ const SendRequest = () => {
         .then((reponse) => {
           if (reponse.data.status == 200) {
             alert('Success')
-            // showmsg(msgs.smsg)
+            
             document.getElementById('form').reset()
             // multselectref.current.resetSelectedValues()
             fetchtdata()
@@ -120,7 +127,35 @@ const SendRequest = () => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleUpdate = () =>{
+    console.log(updateData);
+    if (updateData.newdata.job == null) {
+      alert("select JOb")
+    } else {
+      // console.log(data)
+      // setvalues(true)
+
+
+      axios.post('/updatesendrequest', { data: updateData, user: user })
+        .then((reponse) => {
+          if (reponse.data.status == 200) {
+            alert('Success')
+            // showmsg(msgs.smsg)
+            handleClose()
+            // multselectref.current.resetSelectedValues()
+            fetchtdata()
+          } else if (reponse.data.status == 303) {
+            alert('cant edit already on next step')
+          } else {
+            alert('Failed due to unknown reasons')
+          }
+        })
+    }
+  }
+  const handleShow = (item) => {
+    setUpdateData(ps =>{ return { ...ps,SendRequestID:item.SendRequestID}});
+    setShow(true);
+  };
 
   return (
     <div>
@@ -160,9 +195,10 @@ const SendRequest = () => {
                     <th>Sr</th>
                     <th>Candidate Name</th>
                     <th>Title</th>
+                    <th>Weblink</th>
                     <th>Person</th>
-                    <th>Edit</th>
                     <th>Company</th>
+                    <th>Edit</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -171,11 +207,12 @@ const SendRequest = () => {
                       <td>{index+1}</td>
                       <td>{item.CandidateName}</td>
                       <td>{item.Title}</td>
+                      <td>{item.WebLink}</td>
                       <td>{item.Person}</td>
-                      <td><button className="btn btn-primary" onClick={handleShow}>
+                      <td>{item.Company}</td>
+                      <td><button className="btn btn-primary" onClick={()=>handleShow(item)}>
                         Edit
                       </button></td>
-                      <td>{item.Company}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -188,20 +225,18 @@ const SendRequest = () => {
           <Modal.Title>Update Send Request</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <label htmlFor="" className="form-label"><strong>Candidate Name</strong></label>
-        <input type="text" className="form-control" id="" value="" />
-        <label htmlFor="" className="form-label mt-2"><strong>Title</strong></label>
-        <input type="text" className="form-control" id="" />
-        <label htmlFor="" className="form-label mt-2"><strong>Person</strong></label>
-        <input type="text" className="form-control" id="" />
-        <label htmlFor="" className="form-label mt-2"><strong>Company</strong></label>
-        <input type="text" className="form-control" id="" />
+        <label htmlFor="validationDefault01" className="form-label">Job</label>
+        <Multiselect loading={loading} ref={multselectref} options={alljobs} displayValue="Title" id="validationDefault01" selectionLimit={1} onSelect={(item) => setUpdateData(ps => { return { ...ps, newdata:{...ps.newdata, job: item[0] } }})} onRemove={(item)=>setUpdateData(ps => { return { ...ps, newdata:{...ps.newdata, job: item[0] } }})} />
+        <label htmlFor="validationDefaultUsername" className="form-label">Candidate Name</label>
+        <input type="text" className="form-control" id="validationDefault02" required onChange={e => { setUpdateData(ps => { return { ...ps, newdata: {...ps.newdata, CandidateName: e.target.value} } }) }} />
+        <label htmlFor="validationDefaultUsername" className="form-label">WebLink</label>
+        <input type="text" className="form-control" id="validationDefault02" required onChange={e => { setUpdateData(ps => { return { ...ps, newdata: {...ps.newdata, WebLink: e.target.value } }}) }} />
         </Modal.Body>
         <Modal.Footer style={{ background: '#e7e7e7' }}>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="success" onClick={handleClose}>
+          <Button variant="success" onClick={handleUpdate}>
             Save changes
           </Button>
         </Modal.Footer>

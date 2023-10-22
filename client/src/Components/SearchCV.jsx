@@ -101,6 +101,7 @@ const SearchCV = () => {
             <label htmlFor="validationDefault03" id='validationDefault03' className="form-label">Select Status</label>
             <select name="" id="" className="form-control" onChange={e => { setdata(ps => { return { ...ps, status: e.target.value } }) }}>
               <option value="">Status</option>
+              <option value="recievecv">CV Recieved</option>
               <option value="shortlistcv">Short Listed</option>
               <option value="submitcv">Submitted to Clients</option>
               <option value="acceptencebyclient">Accepted By Client</option>
@@ -122,16 +123,20 @@ const SearchCV = () => {
               <table className="table table-secondary table-hover">
                 <thead className="" style={{ position: 'sticky', top: 0 }}>
                   <tr>
+                    <th>Sr.</th>
                     <th>Candidate Name</th>
                     <th>Latest Company</th>
+                    <th>Last Job Title</th>
                     <th>CV's</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tdata.map((item, index) => (
                     <tr key={index}>
+                      <td>{index + 1}</td>
                       <td>{item.CandidateName}</td>
                       <td>{item.LatestCompany}</td>
+                      <td>{item.LatestJobTitle}</td>
                       <td><button type="button" className="btn btn-success" onClick={() => { downloadcv(item) }} data-bs-toggle="modal" data-bs-target="#exampleModal">View</button></td>
                     </tr>
                   ))}

@@ -245,7 +245,7 @@ const ScheduleCall = () => {
       </div>
       <div className="mt-5">
         <p className="h3 w-100 text-center">Calls Scheduled</p>
-        <p className="w-100 text-center">Click any Rpw to Re-Schedule</p>
+        <p className="w-100 text-center">Click any Row to Re-Schedule</p>
         <div className="cor-3">
           <input type="text" className="form-control w-25 mx-auto text-center" placeholder="Search Candidate Name" onChange={e => handlesearch(e)} />
         </div>

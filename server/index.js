@@ -384,7 +384,30 @@ app.post('/savesendrequest', (req, res) => {
     })
 })
 
-
+app.post('/updatesendrequest', (req, res) => {
+    const user = req.body.user
+    const datacoming = req.body.data;
+    console.log(datacoming);
+    const CHECK_QUERY = `SELECT * FROM recieveacceptance WHERE SendRequestID = ?`
+    const UPDATE_QUERY = `UPDATE sendrequest set CandidateName = ?, WebLink = ?, JobAssignmentID =?, JobID=? where SendRequestID=?`;
+    
+    connection.query(CHECK_QUERY, [datacoming.SendRequestID], (err, response) => {
+        if (err) console.log(err)
+        else {
+            if (response.length > 0) {
+                res.send({ status: 303 })
+            } else {
+                connection.query(UPDATE_QUERY, [datacoming.newdata.CandidateName, datacoming.newdata.WebLink, datacoming.newdata.job.JobAssignmentID, datacoming.newdata.job.JobID, datacoming.SendRequestID], (err, response) => {
+                    if (err) console.log(err)
+                    else {
+                        
+                        res.send({ status: 200 })
+                    }
+                })
+            }
+        }
+    })
+})
 // Recieve Acceptances
 
 app.post('/getjobspecificrequests', (req, res) => {
