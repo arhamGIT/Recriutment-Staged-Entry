@@ -774,7 +774,11 @@ app.post('/downloadcv', (req, res) => {
     //     res.send({ status: 200, data: data })
     // });
 
-    res.download(path.resolve(__dirname + path1))
+    // res.download(path.resolve(__dirname + path1),(err)=>console.log(err))
+    const filePath = path.resolve(__dirname + path1);
+    const fileContent = fs.readFileSync(filePath);
+    const base64Content = Buffer.from(fileContent).toString('base64');
+    res.send({data:base64Content,path:path1});
     // var filestream = fs.createReadStream(filePath);
     // filestream.pipe(res);
 
