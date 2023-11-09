@@ -172,6 +172,12 @@ const SendRequest = () => {
       const nonEmptyRows = first3Columns.filter((row) => row.some((cell) => cell.trim() !== ''));
       const completeRows = nonEmptyRows.filter(row => row.filter(cell => cell != null).length === 3);
       if (completeRows.length > 0) {
+        const headers = completeRows[0];
+        if(headers[0]!=="Job Title" ||  headers[1]!=="Name" || headers[2]!=="Link"){
+          alert("First Row Should be \"Job\" \"Title Name\" \"Link\"");
+          return;
+        }
+
         await Promise.all(completeRows.slice(1).map(async (row) => {
           console.log("enter handle row", row);
           const job = alljobs.find(j => j.Title.trim() === row[0].trim());
