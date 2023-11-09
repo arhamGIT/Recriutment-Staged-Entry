@@ -95,7 +95,7 @@ const ScheduleCall = () => {
             setrequests([])
             fetchtdata()
           } else if (reponse.data.status == 303) {
-            alert('Already Scheduled')
+            alert('Already Scheduled By '+reponse.data.name)
             document.getElementById('savebtn').disabled = false
           } else {
             alert('Failed due to unknown reasons')

@@ -347,41 +347,39 @@ app.post('/getsendrequests', (req, res) => {
 app.post('/savesendrequest', (req, res) => {
     const user = req.body.user
     const datacoming = req.body.data;
-    const CHECK_QUERY = `SELECT * FROM sendrequest WHERE WebLink = ? AND JobID = ?`
+    const CHECK_QUERY = `SELECT * FROM sendrequest WHERE WebLink = ? AND JobID = ? AND CreatedByID = ?`
+    const CHECK_QUERY2 = `SELECT CreatedByID FROM schedulecall WHERE WebLink = ? AND JobID = ?`
     const SAVE_QUERY = `INSERT INTO sendrequest(CandidateName,WebLink,JobAssignmentID,JobID,ClientID,CreatedByID) VALUES (?,?,?,?,?,?)`
 
-    // const LOG_CHECK_QUERY = "SELECT * FROM logsendrequest WHERE WebLink = ? AND UserID = ?"
 
-    // const LOG_REQUESTS = "INSERT INTO logsendrequest(CandidateName,WebLink,JobAssignmentID,JobID,UserID,UserName) VALUES (?,?,?,?,?,?)"
-
-    // connection.query(LOG_CHECK_QUERY,[datacoming.WebLink,datacoming.job.UserID],(err, response5)=>{
-    //     if(response5.length > 0){
-
-    //     }else{
-    //        connection.query(LOG_REQUESTS, [datacoming.CandidateName, datacoming.WebLink, datacoming.job.JobAssignmentID, datacoming.job.JobID, datacoming.job.UserID, datacoming.job.UserName], (err, response4) => {
-    //             if (err) console.log(err)
-    //         })
-    //     }
-    // }) 
-
-
-
-
-    connection.query(CHECK_QUERY, [datacoming.WebLink, datacoming.job.JobID], (err, response) => {
+    connection.query(CHECK_QUERY2, [datacoming.WebLink, datacoming.job.JobID], (err, response) => {
         if (err) console.log(err)
         else {
+            console.log("RESPONSE: ",response);
             if (response.length > 0) {
-                res.send({ status: 303 })
-            } else {
-                connection.query(SAVE_QUERY, [datacoming.CandidateName, datacoming.WebLink, datacoming.job.JobAssignmentID, datacoming.job.JobID, datacoming.job.ClientID, user.UserID], (err, response) => {
+                res.send({ status: 304 });
+            }
+            else {
+                connection.query(CHECK_QUERY, [datacoming.WebLink, datacoming.job.JobID, user.UserID], (err, response) => {
                     if (err) console.log(err)
                     else {
-                        res.send({ status: 200 })
+                        if (response.length > 0) {
+                            res.send({ status: 303 })
+                        } else {
+                            connection.query(SAVE_QUERY, [datacoming.CandidateName, datacoming.WebLink, datacoming.job.JobAssignmentID, datacoming.job.JobID, datacoming.job.ClientID, user.UserID], (err, response) => {
+                                if (err) console.log(err)
+                                else {
+                                    res.send({ status: 200 })
+                                }
+                            })
+                        }
                     }
                 })
             }
         }
     })
+
+
 })
 
 app.post('/updatesendrequest', (req, res) => {
@@ -501,7 +499,8 @@ app.post('/saveschedulecall', (req, res) => {
     const users = req.body.data.mailusers
     const user = req.body.user
     const datacoming = req.body.data.request[0];
-    const CHECK_QUERY = `SELECT * FROM schedulecall WHERE RecieveAcceptanceID = ?`
+    const CHECK_QUERY = `SELECT CreatedByID FROM schedulecall WHERE WebLink = ? AND JobID = ?`
+    const GET_NAME_QUERY = `SELECT UserName FROM users WHERE UserID = ?`
     const SAVE_QUERY = `INSERT INTO schedulecall(ScheduleDateAndTime,RecieveAcceptanceID,Accepted,SendRequestID,CandidateName,WebLink,JobAssignmentID,JobID,ClientID,CreatedByID) VALUES (?,?,?,?,?,?,?,?,?,?)`
     const NEXT_QUERY = `UPDATE recieveacceptance SET next = 'yes' WHERE RecieveAcceptanceID = ?`
 
@@ -513,11 +512,15 @@ app.post('/saveschedulecall', (req, res) => {
 
 
 
-    connection.query(CHECK_QUERY, [datacoming.RecieveAcceptanceID], (err, response) => {
+    connection.query(CHECK_QUERY, [datacoming.WebLink,datacoming.JobID], (err, response) => {
         if (err) console.log(err)
         else {
             if (response.length > 0) {
-                res.send({ status: 303 })
+                connection.query(GET_NAME_QUERY, [ response[0].CreatedByID], (err, response) => {
+                    if (err) res.send({ status: 303, name:""})
+                    else
+                    res.send({ status: 303, name:response[0].UserName})
+                })
             } else {
                 connection.query(SAVE_QUERY, [req.body.data.ScheduleDateAndTime, datacoming.RecieveAcceptanceID, datacoming.Accepted, datacoming.SendRequestID, datacoming.CandidateName, datacoming.WebLink, datacoming.JobAssignmentID, datacoming.JobID, datacoming.ClientID, user.UserID], (err, response) => {
                     if (err) console.log(err)

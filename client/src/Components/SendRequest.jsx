@@ -88,6 +88,8 @@ const SendRequest = () => {
             fetchtdata()
           } else if (reponse.data.status == 303) {
             alert('WebLink Already Exists')
+          } else if (reponse.data.status == 304){
+            alert('call already scheduled for this weblink')
           } else {
             alert('Failed due to unknown reasons')
           }
