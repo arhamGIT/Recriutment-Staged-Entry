@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from 'axios'
 import Multiselect from 'multiselect-react-dropdown';
 import { Modal, Button } from 'react-bootstrap';
+import * as xlsx from 'xlsx';
 
 
 
@@ -25,14 +26,7 @@ const SendRequest = () => {
     CandidateName: '',
     WebLink: ''
   });
-  const [updateData, setUpdateData] = useState({
-    SendRequestID:null,
-    newdata: {
-      job : null,
-      CandidateName: '',
-      WebLink: ''
-    }
-  });
+
   const user = JSON.parse(sessionStorage.getItem('user'))
 
   const fetchtdata = () => {
@@ -82,7 +76,7 @@ const SendRequest = () => {
         .then((reponse) => {
           if (reponse.data.status == 200) {
             alert('Success')
-            
+            // showmsg(msgs.smsg)
             document.getElementById('form').reset()
             // multselectref.current.resetSelectedValues()
             fetchtdata()
@@ -127,61 +121,86 @@ const SendRequest = () => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
-  const handleUpdate = () =>{
-    console.log(updateData);
-    if (updateData.newdata.job == null) {
-      alert("select JOb")
-    } else {
-      // console.log(data)
-      // setvalues(true)
+  const handleShow = () => setShow(true);
 
-
-      axios.post('/updatesendrequest', { data: updateData, user: user })
-        .then((reponse) => {
-          if (reponse.data.status == 200) {
-            alert('Success')
-            // showmsg(msgs.smsg)
-            handleClose()
-            // multselectref.current.resetSelectedValues()
-            fetchtdata()
-          } else if (reponse.data.status == 303) {
-            alert('cant edit already on next step')
-          } else {
-            alert('Failed due to unknown reasons')
-          }
-        })
-    }
+  const [excelData, setExcelData]= useState([]);
+  const [options, setOptions]= useState([]);
+  const readExcel = async(e)=>{
+    const file= e.target.files[0];
+    const data= await file.arrayBuffer(file);
+    const excelfile= xlsx.read(data);
+    const excelsheet= excelfile.Sheets[excelfile.SheetNames[0]];
+    const exceljson= xlsx.utils.sheet_to_json(excelsheet);
+    console.log(exceljson);
+    setExcelData(exceljson);
+    
   }
-  const handleShow = (item) => {
-    setUpdateData(ps =>{ return { ...ps,SendRequestID:item.SendRequestID}});
-    setShow(true);
-  };
-
+  const [candidateName, setCandidateName] = useState('');
+const [webLink, setWebLink] = useState('');
+const [rowNumber, setRowNumber] = useState('');
+console.log(rowNumber);
   return (
     <div>
       <div className="mx-auto my-5 container-fluid" >
           <form className="row g-3" onSubmit={submitform} id="form">
             <div className="col-md-4">
               <label htmlFor="validationDefault01" className="form-label">Job</label>
-              <Multiselect loading={loading} ref={multselectref} options={alljobs} displayValue="Title" id="validationDefault01" selectionLimit={1} onSelect={jobselect} onRemove={jobremove} />
+              <select name="" className="form-control" id="">
+                {
+                  excelData.map((opts,i)=>
+                  <option>
+                    {opts.Job}
+                  </option>)
+                }
+              </select>
+              {/* <Multiselect loading={loading} ref={multselectref} options={alljobs} displayValue="Title" id="validationDefault01" selectionLimit={1} onSelect={jobselect} onRemove={jobremove} /> */}
             </div>
             <div className="col-md-4">
               <label htmlFor="validationDefaultUsername" className="form-label">Candidate Name</label>
-              <input type="text" className="form-control" id="validationDefault02" required onChange={e => { setdata(ps => { return { ...ps, CandidateName: e.target.value } }) }} />
+              <select name="candidateName" className="form-control" id=""
+               onChange={(e) => {
+                const selectedName = e.target.value;
+                const selectedCandidate = excelData.find((opts) => opts.Name === selectedName);
+          
+                if (selectedCandidate) {
+                  setCandidateName(selectedName);
+                  setWebLink(selectedCandidate.Link); // Set the web link
+                  setRowNumber(selectedCandidate.__rowNum__); // Set the row number
+                }
+              }}
+               >
+                {
+                  excelData.map((opts,i)=>
+                  <option key={i} value={opts.Name}>
+                    {opts.Name}
+                  </option>)
+                }
+              </select>
+              {/* <input type="text" className="form-control" id="validationDefault02" required onChange={e => { setdata(ps => { return { ...ps, CandidateName: e.target.value } }) }} /> */}
             </div>
             <div className="col-md-4">
               <label htmlFor="validationDefaultUsername" className="form-label">WebLink</label>
-              <input type="text" className="form-control" id="validationDefault02" required onChange={e => { setdata(ps => { return { ...ps, WebLink: e.target.value } }) }} />
+              {excelData.map((opts, i) => (
+                <input
+                  key={i} // Remember to provide a unique key when mapping over elements
+                  className="form-control"
+                  type="text"
+                  value={excelData.find((opts) => opts.__rowNum__ === 4)?.Link || ''}
+                />
+              ))}
+              {/* <input type="text" className="form-control" id="validationDefault02" required onChange={e => { setdata(ps => { return { ...ps, WebLink: e.target.value } }) }} /> */}
             </div>
-            <div className="col-12">
+            <div className="col-4">
+              <input type="file" className="form-control" style={{width:'100%', display:'flex'}} onChange={ (e)=>readExcel(e)} id=""/>
+            </div>
+            <div className="col-4">
               <button data-loading-text="Saving" className="btn btn-success" id="savebtn" type="submit">Send Request</button>
               <span id="spinner" style={{display:'none'}}><span className="spinner-border spinner-border-sm text-success mx-3" role="status" aria-hidden="true"></span><span className="text-success">Saving...</span></span>
-
+              <button className="btn btn-danger ms-3" id="newbtn" onClick={clearclick}>Clear</button>
+              {/* <button className="btn btn-primary ms-3" id="" >Import</button> */}
             </div>
           </form>
-          <div className="col-12 mt-3">
-            <button className="btn btn-secondary" id="newbtn" onClick={clearclick}>Clear</button>
-          </div>
+          {/* <div className="col-12 mt-3"></div> */}
           <div className="mt-5">
             <p className="h3 w-100 text-center">Requests Sent</p>
             <div className="cor-3">
@@ -195,10 +214,9 @@ const SendRequest = () => {
                     <th>Sr</th>
                     <th>Candidate Name</th>
                     <th>Title</th>
-                    <th>Weblink</th>
                     <th>Person</th>
-                    <th>Company</th>
                     <th>Edit</th>
+                    <th>Company</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -207,12 +225,11 @@ const SendRequest = () => {
                       <td>{index+1}</td>
                       <td>{item.CandidateName}</td>
                       <td>{item.Title}</td>
-                      <td>{item.WebLink}</td>
                       <td>{item.Person}</td>
-                      <td>{item.Company}</td>
-                      <td><button className="btn btn-primary" onClick={()=>handleShow(item)}>
+                      <td><button className="btn btn-primary" onClick={handleShow}>
                         Edit
                       </button></td>
+                      <td>{item.Company}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -225,18 +242,20 @@ const SendRequest = () => {
           <Modal.Title>Update Send Request</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <label htmlFor="validationDefault01" className="form-label">Job</label>
-        <Multiselect loading={loading} ref={multselectref} options={alljobs} displayValue="Title" id="validationDefault01" selectionLimit={1} onSelect={(item) => setUpdateData(ps => { return { ...ps, newdata:{...ps.newdata, job: item[0] } }})} onRemove={(item)=>setUpdateData(ps => { return { ...ps, newdata:{...ps.newdata, job: item[0] } }})} />
-        <label htmlFor="validationDefaultUsername" className="form-label">Candidate Name</label>
-        <input type="text" className="form-control" id="validationDefault02" required onChange={e => { setUpdateData(ps => { return { ...ps, newdata: {...ps.newdata, CandidateName: e.target.value} } }) }} />
-        <label htmlFor="validationDefaultUsername" className="form-label">WebLink</label>
-        <input type="text" className="form-control" id="validationDefault02" required onChange={e => { setUpdateData(ps => { return { ...ps, newdata: {...ps.newdata, WebLink: e.target.value } }}) }} />
+        <label htmlFor="" className="form-label"><strong>Candidate Name</strong></label>
+        <input type="text" className="form-control" id="" value="" />
+        <label htmlFor="" className="form-label mt-2"><strong>Title</strong></label>
+        <input type="text" className="form-control" id="" />
+        <label htmlFor="" className="form-label mt-2"><strong>Person</strong></label>
+        <input type="text" className="form-control" id="" />
+        <label htmlFor="" className="form-label mt-2"><strong>Company</strong></label>
+        <input type="text" className="form-control" id="" />
         </Modal.Body>
         <Modal.Footer style={{ background: '#e7e7e7' }}>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="success" onClick={handleUpdate}>
+          <Button variant="success" onClick={handleClose}>
             Save changes
           </Button>
         </Modal.Footer>
