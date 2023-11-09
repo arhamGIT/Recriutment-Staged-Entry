@@ -26,7 +26,8 @@
     "react-select-search": "^3.0.10",
     "socket.io-client": "^4.5.2",
     "web-vitals": "^2.1.4",
-    "websocket": "^1.0.34"
+    "websocket": "^1.0.34",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",
