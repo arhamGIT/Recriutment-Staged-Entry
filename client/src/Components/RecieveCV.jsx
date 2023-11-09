@@ -157,16 +157,38 @@ const RecieveCV = () => {
   const requestremove = (item) => {
     setdata(ps => { return { ...ps, request: item } })
   }
-
+  const base64ToArrayBuffer = (base64) => {
+    var binaryString = window.atob(base64);
+    var binaryLen = binaryString.length;
+    var bytes = new Uint8Array(binaryLen);
+    for (var i = 0; i < binaryLen; i++) {
+       var ascii = binaryString.charCodeAt(i);
+       bytes[i] = ascii;
+    }
+    return bytes;
+ }
   const downloadcv = (item) => {
     setName(item.CandidateName)
     const name = item.CVName.split("____")[1]
-    // console.log(name);
-    axios.post('/downloadcv', { path: item.CVName })
+    axios.post(
+      '/downloadcv', 
+      { 
+        path: item.CVName, 
+        responseType:'blob', 
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
       .then((response) => {
-        // console.log(response.data)
-        // setsf(response.data.data)
-        download(response.data,name)     
+        const nd= base64ToArrayBuffer(response.data.data)
+        const url = window.URL.createObjectURL(new Blob([nd],{ type: 'application/pdf' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', response.data.path);
+        document.body.appendChild(link);
+        link.click();
+      }, (error) => {
+        console.log(error)
       })
   }
 
